@@ -38,5 +38,5 @@ void main() {
     //vec2 uv = gl_FragCoord.xy - 0.5 * Resolution / Resolution.y;
     vec2 uv = outPos.xy;
 
-    fragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
+    fragColor = vec4(abs(uv.x), abs(uv.y), 0.2f, 1.0f);
 }

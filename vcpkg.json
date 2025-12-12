@@ -1,0 +1,27 @@
+{
+  "name" : "tsbk03-project",
+  "version-string" : "1.0.0",
+  "builtin-baseline" : "782419385291ae2db643c928314efe626853c702",
+  "dependencies" : [ {
+    "name" : "egl-registry",
+    "version>=" : "2024-01-25"
+  }, {
+    "name" : "opengl-registry",
+    "version>=" : "2024-02-10#1"
+  }, {
+    "name" : "vcpkg-cmake-config",
+    "version>=" : "2024-05-23"
+  }, {
+    "name" : "vcpkg-cmake",
+    "version>=" : "2024-04-23"
+  }, {
+    "name" : "glfw3",
+    "version>=" : "3.4#1"
+  }, {
+    "name" : "glad",
+    "version>=" : "0.1.36"
+  }, {
+    "name" : "glm",
+    "version>=" : "1.0.2"
+  } ]
+}
