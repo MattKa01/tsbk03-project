@@ -91,6 +91,7 @@ glGenVertexArrays(1, &VAO);
 
 void display(Shader shaders) {
 
+    int uTime = 1;
     // Rendering loop
     while (!glfwWindowShouldClose(window)) {
 
@@ -106,12 +107,14 @@ void display(Shader shaders) {
         glfwGetWindowSize(window, &wWidth, &wHeight);
         glm::vec2 resolution = glm::vec2(wWidth, wHeight);
 
+        shaders.setInt("time", uTime);
         glUniform2fv(glGetUniformLocation(shaders.ID, "resolution"),1, glm::value_ptr(resolution));
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, 6);
         // Check and call events and swap buffers
         glfwSwapBuffers(window);
         glfwPollEvents();
+        uTime++;
     }
 }
 
