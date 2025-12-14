@@ -69,7 +69,7 @@ void init() {
     }
 
     // Tell opengl the window rendering size
-    glViewport(0,0,800,600);
+    glViewport(0,0,1000,800);
 
     // Set window resize callback
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);

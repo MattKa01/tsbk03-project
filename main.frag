@@ -4,9 +4,9 @@ uniform int time;
 uniform vec2 resolution;
 out vec4 fragColor;
 
-const float kMaxHeight = 800.0;
-const mat2 m2 = mat2(  0.80,  0.60, -0.60,  0.80 );
-const vec3 sunDir = normalize(vec3(0.8, 0.7, 0.2));
+const float kMaxHeight = 840.0;
+const mat2 m2 = mat2(0.80,  0.60, -0.60,  0.80);
+const vec3 sunDir = normalize(vec3(-0.62,0.46,-0.52));
 
 // Smoothstep and it's derivative
 vec2 smoothStepD(float a, float b, float x) {
@@ -117,13 +117,34 @@ float raymarchTerrain( in vec3 ro, in vec3 rd, float tmin, float tmax )
     return t;
 }
 
+vec3 skyColor(in vec3 ro, in vec3 rd ) {
+    vec3 color;
+    color = vec3(0.5,0.7,1.0) - rd.y*0.45; // sky
+
+    // Clouds
+    float t = (2000.0 - ro.y) / rd.y;
+    if (t > 0.0) {
+        vec2 uv = (ro+t*rd).xz;
+        float cloudNoise = fbm_9(uv*0.0008 + vec2(0.0, time*0.001));
+        float dl = (smoothStepD(-0.2, 0.6, cloudNoise)).x;
+        color = mix(color, vec3(1.0), 0.6*dl);
+    }
+
+    // Sun glow
+    float sun = clamp(dot(sunDir, rd), 0.0, 1.0);
+    color += 0.3*vec3(1.0, 0.6, 0.3) * pow(sun, 32.0);
+
+    return color;
+}
+
 void main() {
 
     //vec2 uv = (2.0*outUV - resolution.xy) / resolution.y;
     vec2 uv = outUV;
     uv.x *= resolution.x / resolution.y;
 
-    vec3 ro = vec3(0.1*time, 501.5, 6.0);
+    //vec3 ro = vec3(0.1*time, 501.5, 6.0);
+    vec3 ro = vec3(80.0, 401.5, 6.0);
     vec3 rd = normalize(vec3(uv, -1.0));
 
     float dist = raymarchTerrain(ro, rd, 0.0, 1000.0);
@@ -140,7 +161,7 @@ void main() {
         color = color * (0.3 + 0.7 * diffuse);
     }
     else {
-        color = vec3(0.5,0.7,1.0); // sky
+        color = skyColor(ro, rd);
     }
 
     fragColor = vec4(color, 1.0);
