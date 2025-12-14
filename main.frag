@@ -1,12 +1,15 @@
 #version 330
-
-uniform vec2 Resolution;
-in vec2 outPos;
+in vec2 outUV;
+uniform vec2 resolution;
 out vec4 fragColor;
 
 // Simple height function for terrain
 float heightFunc(float x, float z) {
     return sin(x) * sin(z);
+}
+
+float sdSphere(vec3 p, float r) {
+    return length(p) - r;
 }
 
 // Ray marching function to find intersection with terrain
@@ -35,8 +38,10 @@ bool castRay(vec3 rayOrigin, vec3 rayDir, out float resT) {
 }
 
 void main() {
-    //vec2 uv = gl_FragCoord.xy - 0.5 * Resolution / Resolution.y;
-    vec2 uv = outPos.xy;
+    //vec2 uv = (2.0*outUV - resolution.xy) / resolution.y;
+    vec2 uv = outUV;
+    uv.x *= resolution.x / resolution.y;
 
-    fragColor = vec4(abs(uv.x), abs(uv.y), 0.2f, 1.0f);
+    vec3 col = vec3(uv * 0.5f + 0.5f, 0.0f);
+    fragColor = vec4(abs(uv.x), abs(uv.y), 0.0, 1.0);
 }

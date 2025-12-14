@@ -6,19 +6,16 @@
 #include "glm/ext.hpp"
 
 
-#define near 1.0
-#define far 200.0
-#define right 0.6
-#define left -0.6
-#define top 0.6
-#define bottom -0.6
+float quadVertices[] = {
+    // pos        // uv (-1..1)
+    -1.0f, -1.0f,  -1.0f, -1.0f,
+     1.0f, -1.0f,   1.0f, -1.0f,
+     1.0f,  1.0f,   1.0f,  1.0f,
 
-GLfloat projectionMatrix[] = {
-    2.0f*near/(right-left), 0.0f, (right+left)/(right-left), 0.0f,
-    0.0f, 2.0f*near/(top-bottom), (top+bottom)/(top-bottom), 0.0f,
-    0.0f, 0.0f, -(far + near)/(far - near), -2*far*near/(far - near),
-    0.0f, 0.0f, -1.0f, 0.0f };
-
+    -1.0f, -1.0f,  -1.0f, -1.0f,
+     1.0f,  1.0f,   1.0f,  1.0f,
+    -1.0f,  1.0f,  -1.0f,  1.0f
+};
 
 float vertices[] = {
     -1.0f,  1.0f,  0.0f,
@@ -31,12 +28,9 @@ GLuint indices[] = {
     2, 3, 0
 };
 
-GLuint VBO, VAO, EBO;
+GLuint VBO, VAO;
 GLFWwindow* window;
-glm::mat4 look = glm::lookAt(
-    glm::vec3(0.0f, 0.0f, -8.0f),
-    glm::vec3(0.0f, 0.0f, 0.0f),
-    glm::vec3(0.0f, 1.0f, 0.0f));
+
 
 // Callback function for window resizing
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
@@ -80,27 +74,23 @@ void init() {
     // Set window resize callback
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-    // Set up VAO
-    glGenVertexArrays(1, &VAO);
-    glBindVertexArray(VAO);
-
-    // Set up VBO
+glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
+
+    glBindVertexArray(VAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
+
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
    }
 
 void display(Shader shaders) {
 
-    glUniformMatrix4fv(glGetUniformLocation(shaders.ID,"lookAt"), 1, GL_FALSE, glm::value_ptr(look));
-    glUniformMatrix4fv(glGetUniformLocation(shaders.ID,"projection"), 1, GL_FALSE, &projectionMatrix[0]);
     // Rendering loop
     while (!glfwWindowShouldClose(window)) {
 
@@ -114,10 +104,11 @@ void display(Shader shaders) {
         shaders.use();
         int wHeight, wWidth;
         glfwGetWindowSize(window, &wWidth, &wHeight);
-        //glm::vec2 resolution = glm::vec2(wWidth, wHeight);
-        //glUniform2iv(glGetUniformLocation(shaders.ID, "Resolution"),2, );
+        glm::vec2 resolution = glm::vec2(wWidth, wHeight);
+
+        glUniform2fv(glGetUniformLocation(shaders.ID, "resolution"),1, glm::value_ptr(resolution));
         glBindVertexArray(VAO);
-        glDrawElements(GL_TRIANGLES, 6,GL_UNSIGNED_INT, 0);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
         // Check and call events and swap buffers
         glfwSwapBuffers(window);
         glfwPollEvents();

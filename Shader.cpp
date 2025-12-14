@@ -4,7 +4,9 @@
 
 #include <filesystem>
 #include <glad/glad.h>
+#include <glm/gtc/type_ptr.hpp>
 #include <sec_api/string_s.h>
+#include "glm/glm.hpp"
 
 #include "shader.h"
 
@@ -53,14 +55,17 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath) {
     unsigned int vertex, fragment;
     int success;
     char infoLog[512];
+    GLsizei length = 0;
 
     vertex = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertex, 1, &vShaderCode, NULL);
     glCompileShader(vertex);
 
+    glGetShaderiv(vertex, GL_COMPILE_STATUS, &success);
+
     // Print compile errors if any
     if (!success) {
-        glGetShaderInfoLog(vertex, 512, NULL, infoLog);
+        glGetShaderInfoLog(vertex, 512, &length, infoLog);
         std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
     }
 
@@ -68,11 +73,12 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath) {
     fragment = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragment, 1, &fShaderCode, NULL);
     glCompileShader(fragment);
+    glGetShaderiv(fragment, GL_COMPILE_STATUS, &success);
 
     // Print compile errors if any
     if (!success) {
-        glGetShaderInfoLog(fragment, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+        glGetShaderInfoLog(fragment, 512, &length, infoLog);
+        std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
     }
 
     // Shader program
@@ -107,4 +113,8 @@ void Shader::setInt(const std::string &name, int value) const {
 
 void Shader::setFloat(const std::string &name, float value) const {
     glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
+}
+
+void Shader::setMat4(const std::string &name, glm::mat4 &value) const {
+    glUniformMatrix4fv(glGetUniformLocation(ID,name.c_str()), 1, GL_FALSE, glm::value_ptr(value));
 }
